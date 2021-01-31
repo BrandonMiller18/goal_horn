@@ -23,7 +23,7 @@ def get_team(abr):
 	return team_id
 
 def app(team_id, abr):
-	test = True # set to True to test with local json files
+	test = False # set to True to test with local json files
 
 	if test:
 		# data from file for testing purposes
@@ -32,10 +32,6 @@ def app(team_id, abr):
 	else:
 		r = requests.get(base_url + f"schedule?teamId={team_id}")
 		data = r.json()
-
-	# data from file for testing purposes
-	with open('sched.json') as f:
-		data = json.load(f)
 
 	home = False
 	away = False
@@ -74,24 +70,24 @@ def app(team_id, abr):
 				if i == 1: # skip on first iteration to set comparison scores
 					if away:
 						if away_score != away_scoreLast:
-							# time.sleep(10) # adjust to line up with your stream
+							time.sleep(10) # adjust to line up with your stream
 							print(f"{abr} SCORED!!!")
 							playsound(f"{abr}.mp3")
 							# time.sleep(30)
 						if home_score != home_scoreLast:
 							# time.sleep(10)
 							print("BAD GUYS SCORED")
-							# time.sleep(30)
+							time.sleep(30)
 					if home:
 						if home_score != home_scoreLast:
-							# time.sleep(10)
+							time.sleep(10)
 							print(f"{abr} SCORED!!!")
 							playsound(f"{abr}.mp3")
-							# time.sleep(30)
-						if away_score != away_scoreLast:
+							time.sleep(30)
+						# if away_score != away_scoreLast:
 							# time.sleep(10)
 							print("BAD GUYS SCORED")
-							# time.sleep(30)
+							time.sleep(30)
 				else:
 					i += 1 # set i equal to 1 on first iteration
 
