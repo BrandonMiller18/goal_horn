@@ -6,11 +6,14 @@ from playsound import playsound
 
 base_url = "https://statsapi.web.nhl.com/api/v1/"
 
-def celebration():
-	"""This should be the celebration when the Blues score.
-	- Goal Song
-	- Goal Horn
-	- Flash lights"""
+def celebration(abr):
+	"""celebration when the your team scores."""
+	print(f"{abr} SCORED!!!")
+	playsound(f"{abr}.mp3")
+
+def win(abr):
+	"""celebration to play when your team wins"""
+	playsound(f"{abr}_win.mp3")
 
 def get_team(abr):
 	r = requests.get(base_url + "teams")
@@ -23,7 +26,7 @@ def get_team(abr):
 	return team_id
 
 def app(team_id, abr):
-	test = False # set to True to test with local json files
+	test = True # set to True to test with local json files
 
 	if test:
 		# data from file for testing purposes
@@ -53,13 +56,16 @@ def app(team_id, abr):
 				away = True
 
 			while True:
+				"""Continous loop to check game score, play cellys"""
 				if test:
 					# data from file for testing purposes
 					with open('sched.json') as f:
 						data = json.load(f)
+					stream_delay = 0 # no delay for testing
 				else:
 					r = requests.get(base_url + f"schedule?teamId={team_id}")
 					data = r.json()
+					stream_delay = 50 # delay for the stream
 
 				game_status = data['dates'][0]['games'][0]['status']['abstractGameState']
 
@@ -70,22 +76,20 @@ def app(team_id, abr):
 				if i == 1: # skip on first iteration to set comparison scores
 					if away:
 						if away_score != away_scoreLast:
-							time.sleep(10) # adjust to line up with your stream
-							print(f"{abr} SCORED!!!")
-							playsound(f"{abr}.mp3")
+							time.sleep(stream_delay) # adjust to line up with your stream
+							celebration(abr)
 							# time.sleep(30)
 						if home_score != home_scoreLast:
-							# time.sleep(10)
+							# time.sleep(stream_delay)
 							print("BAD GUYS SCORED")
 							time.sleep(30)
 					if home:
 						if home_score != home_scoreLast:
-							time.sleep(10)
-							print(f"{abr} SCORED!!!")
-							playsound(f"{abr}.mp3")
-							time.sleep(30)
-						# if away_score != away_scoreLast:
-							# time.sleep(10)
+							time.sleep(stream_delay)
+							celebration(abr)
+							# time.sleep(30)
+						if away_score != away_scoreLast:
+							# time.sleep(stream_delay)
 							print("BAD GUYS SCORED")
 							time.sleep(30)
 				else:
@@ -99,16 +103,17 @@ def app(team_id, abr):
 				if game_status == "Final":
 					if away:
 						if away_score > home_score:
-							playsound(f"{abr}_win.mp3") # PLAY GLORIA!
+							time.sleep(stream_delay)
+							win(abr) # PLAY GLORIA!
 					if home:
 						if home_score > away_score:
-							playsound(f"{abr}_win.mp3")
+							time.sleep(stream_delay)
+							win(abr)
 					print("GAME OVER")
 					break
 
-
-				time.sleep(8) # request every x seconds
-
+				time.sleep(5) # request every x seconds
+				# END WHILE TRUE LOOP #
 
 		if game_status == "Preview":
 			print(f"The {abr} game has not started yet.")
