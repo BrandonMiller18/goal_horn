@@ -4,37 +4,25 @@ import time
 
 from playsound import playsound
 
-base_url = "https://statsapi.web.nhl.com/api/v1/"
+from config import Config
 
-def celebration(abr):
-	"""celebration when the your team scores."""
-	print(f"{abr} SCORED!!!")
-	playsound(f"{abr}.mp3")
+base_url = Config.base_url
 
-def win(abr):
-	"""celebration to play when your team wins"""
-	playsound(f"{abr}_win.mp3")
 
-def get_team(abr):
-	r = requests.get(base_url + "teams")
-	data = r.json()
+def app(abr, test, team_id, stream_delay, data):
 
-	for team in data['teams']:
-		if team['abbreviation'] == abr:
-			team_id = team['id']
 
-	return team_id
+	def celebration(abr):
+		"""celebration when the your team scores."""
+		print(f"\n\n{abr} SCORED!!!\n\n")
+		playsound(f"{abr}.mp3")
 
-def app(team_id, abr):
-	test = False # set to True to test with local json files
 
-	if test:
-		# data from file for testing purposes
-		with open('sched.json') as f:
-			data = json.load(f)
-	else:
-		r = requests.get(base_url + f"schedule?teamId={team_id}")
-		data = r.json()
+	def win(abr):
+		"""celebration to play when your team wins"""
+		print(f"\n\n{abr} WINS!!!\n\n")
+		playsound(f"{abr}_win.mp3")
+
 
 	home = False
 	away = False
@@ -42,8 +30,15 @@ def app(team_id, abr):
 
 	"""Here the fun begins...if there is a game, check status. If status is 'Live'
 	then we keep checking the score."""
-	if games > 0:
+	while games > 0:
+		data = config.data(test)	
 		game_status = data['dates'][0]['games'][0]['status']['abstractGameState']
+
+		if game_status == "Preview":
+			print("Waiting for puck drop...")
+			# time.sleep(60) # wait and re-check data
+
+
 		if game_status == "Live":
 			i = 0	
 
@@ -57,15 +52,7 @@ def app(team_id, abr):
 
 			while True:
 				"""Continous loop to check game score, play cellys"""
-				if test:
-					# data from file for testing purposes
-					with open('sched.json') as f:
-						data = json.load(f)
-					stream_delay = 0 # no delay for testing
-				else:
-					r = requests.get(base_url + f"schedule?teamId={team_id}")
-					data = r.json()
-					stream_delay = 34 # delay for the stream
+				data = config.data(test)
 
 				game_status = data['dates'][0]['games'][0]['status']['abstractGameState']
 
@@ -78,21 +65,18 @@ def app(team_id, abr):
 						if away_score != away_scoreLast:
 							time.sleep(stream_delay) # adjust to line up with your stream
 							celebration(abr)
-							# time.sleep(30)
 						if home_score != home_scoreLast:
-							# time.sleep(stream_delay)
+							time.sleep(stream_delay)
 							print("BAD GUYS SCORED")
-							time.sleep(30)
 					if home:
 						if home_score != home_scoreLast:
 							time.sleep(stream_delay)
 							celebration(abr)
-							# time.sleep(30)
 						if away_score != away_scoreLast:
-							# time.sleep(stream_delay)
+							time.sleep(stream_delay)
 							print("BAD GUYS SCORED")
-							time.sleep(30)
 				else:
+					print("\n\nGAME START!\n\n")
 					i += 1 # set i equal to 1 on first iteration
 
 				# set last loop's scores to compare against
@@ -112,15 +96,26 @@ def app(team_id, abr):
 					print("GAME OVER")
 					break
 
-				time.sleep(5) # request every x seconds
+				time.sleep(2) # request every x seconds
 				# END WHILE TRUE LOOP #
 
-		if game_status == "Preview":
-			print(f"The {abr} game has not started yet.")
+
+		time.sleep(30)
+
+
+
 	else:
 		print(f"That sucks, {abr} does not play today.")
 
 	
 if __name__ == "__main__":
-	abr = input("Enter the abbreviation of your favorite team: ")
-	app(get_team(abr), abr)
+	
+	abr = input("Please enter the abbreviation of your favorite team! ").upper()
+	config = Config(abr)
+
+	test = config.test()
+	team_id = config.get_team(abr)
+	stream_delay = config.stream_delay(test)
+	data = config.data(test)
+
+	app(abr, test, team_id, stream_delay, data)
