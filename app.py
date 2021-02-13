@@ -1,9 +1,7 @@
 import requests
 import json
 import time
-
 from playsound import playsound
-
 from config import Config
 
 base_url = Config.base_url
