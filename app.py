@@ -26,7 +26,7 @@ def get_team(abr):
 	return team_id
 
 def app(team_id, abr):
-	test = True # set to True to test with local json files
+	test = False # set to True to test with local json files
 
 	if test:
 		# data from file for testing purposes
@@ -65,7 +65,7 @@ def app(team_id, abr):
 				else:
 					r = requests.get(base_url + f"schedule?teamId={team_id}")
 					data = r.json()
-					stream_delay = 50 # delay for the stream
+					stream_delay = 34 # delay for the stream
 
 				game_status = data['dates'][0]['games'][0]['status']['abstractGameState']
 
