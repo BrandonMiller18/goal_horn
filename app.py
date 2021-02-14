@@ -29,12 +29,11 @@ def app(abr, test, team_id, stream_delay, data):
 	"""Here the fun begins...if there is a game, check status. If status is 'Live'
 	then we keep checking the score."""
 	while games > 0:
-		data = config.data(test)	
+		data = config.data(test, team_id)	
 		game_status = data['dates'][0]['games'][0]['status']['abstractGameState']
 
 		if game_status == "Preview":
 			print("Waiting for puck drop...")
-			# time.sleep(60) # wait and re-check data
 
 
 		if game_status == "Live":
@@ -111,9 +110,10 @@ if __name__ == "__main__":
 	abr = input("Please enter the abbreviation of your favorite team! ").upper()
 	config = Config(abr)
 
-	test = config.test()
 	team_id = config.get_team(abr)
+	print(f"Team ID is: {team_id}")
+	test = config.test()
 	stream_delay = config.stream_delay(test)
-	data = config.data(test)
+	data = config.data(test, team_id)
 
 	app(abr, test, team_id, stream_delay, data)

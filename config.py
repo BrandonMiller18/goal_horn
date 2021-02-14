@@ -28,7 +28,7 @@ class Config:
 	def get_team(self, abr):
 		r = requests.get(Config.base_url + "teams")
 		data = r.json()
-
+		
 		for team in data['teams']:
 			if team['abbreviation'] == abr:
 				team_id = team['id']
@@ -45,12 +45,13 @@ class Config:
 		return stream_delay
 
 
-	def data(self, test):
+	def data(self, test, team_id):
 		if test:
 			with open('sched.json') as f: # data from file for testing purposes
 				data = json.load(f)
 		else:
-			r = requests.get(base_url + f"schedule?teamId={team_id}")
+			r = requests.get(Config.base_url + f"schedule?teamId={team_id}")
 			data = r.json()
+			print("Got new data")
 
 		return data
