@@ -6,8 +6,11 @@ from config import Config
 
 base_url = Config.base_url
 
+def app(abr, test, team_id, stream_delay):
 
-def app(abr, test, team_id, stream_delay, data):
+	def refresh_data(test, team_id):
+		data = config.get_data(test, team_id)
+		return data
 
 
 	def celebration(abr):
@@ -22,6 +25,8 @@ def app(abr, test, team_id, stream_delay, data):
 		playsound(f"{abr}_win.mp3")
 
 
+	data = refresh_data(test, team_id)
+
 	home = False
 	away = False
 	games = data['totalItems']
@@ -29,11 +34,19 @@ def app(abr, test, team_id, stream_delay, data):
 	"""Here the fun begins...if there is a game, check status. If status is 'Live'
 	then we keep checking the score."""
 	while games > 0:
-		data = config.data(test, team_id)	
+		data = refresh_data(test, team_id)
 		game_status = data['dates'][0]['games'][0]['status']['abstractGameState']
 
 		if game_status == "Preview":
-			print("Waiting for puck drop...")
+			while game_status == "Preview":
+				data = refresh_data(test, team_id)
+				print("Waiting for puck drop.")
+				time.sleep(1)
+				print("Waiting for puck drop..")
+				time.sleep(1)
+				print("Waiting for puck drop...")
+				time.sleep(4)
+				print("\n\nCHECKING STATUS\n")
 
 
 		if game_status == "Live":
@@ -49,7 +62,7 @@ def app(abr, test, team_id, stream_delay, data):
 
 			while True:
 				"""Continous loop to check game score, play cellys"""
-				data = config.data(test)
+				data = refresh_data(test, team_id)
 
 				game_status = data['dates'][0]['games'][0]['status']['abstractGameState']
 
@@ -96,10 +109,11 @@ def app(abr, test, team_id, stream_delay, data):
 				time.sleep(2) # request every x seconds
 				# END WHILE TRUE LOOP #
 
+		elif game_status == "Final":
+			print("Today's game has already ended.")
 
-		time.sleep(30)
-
-
+		else: 
+			print("Error involving game_status. Please try again.")
 
 	else:
 		print(f"That sucks, {abr} does not play today.")
@@ -114,6 +128,5 @@ if __name__ == "__main__":
 	print(f"Team ID is: {team_id}")
 	test = config.test()
 	stream_delay = config.stream_delay(test)
-	data = config.data(test, team_id)
 
-	app(abr, test, team_id, stream_delay, data)
+	app(abr, test, team_id, stream_delay)
