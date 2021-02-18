@@ -48,7 +48,7 @@ class Config:
 		if test:
 			self.stream_delay = 0
 		else:
-			self.stream_delay = 34
+			self.stream_delay = int(input("Set stream delay: "))
 
 		print(f"Stream delay set to {self.stream_delay}...\n")
 
