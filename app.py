@@ -41,7 +41,7 @@ def watch_game():
 
 		if game_status == "Preview":
 			while game_status == "Preview":
-				data = refresh_data(test, team_id)
+				data = refresh_data()
 				game_status = data['dates'][0]['games'][0]['status']['abstractGameState']
 				print("Waiting for puck drop.")
 				time.sleep(1)
