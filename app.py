@@ -20,13 +20,13 @@ def watch_game():
 
 	def celebration():
 		"""celebration when the your team scores."""
-		print(f"\n\n{abr} SCORED!!!\n\n")
+		print(f"\n{abr} SCORED!!!\n")
 		playsound(f"{abr}.mp3")
 
 
 	def win():
 		"""celebration to play when your team wins"""
-		print(f"\n\n{abr} WINS!!!\n\n")
+		print(f"\n{abr} WINS!!!\n")
 		playsound(f"{abr}_win.mp3")
 
 	home = False
@@ -47,7 +47,7 @@ def watch_game():
 			time.sleep(1)
 			print("Waiting for puck drop...")
 			time.sleep(10)
-			print("\n\nCHECKING STATUS\n")
+			print("\nyCHECKING STATUS\n")
 
 
 		elif game_status == "Live":
@@ -79,6 +79,8 @@ def watch_game():
 						if away_score != away_scoreLast:
 							time.sleep(stream_delay) # adjust to line up with your stream
 							celebration()
+							if away_score < 2:
+								stream_delay = game.update_stream_delay(stream_delay)
 						if home_score != home_scoreLast:
 							time.sleep(stream_delay)
 							print("BAD GUYS SCORED")
@@ -86,6 +88,8 @@ def watch_game():
 						if home_score != home_scoreLast:
 							time.sleep(stream_delay)
 							celebration()
+							if home_score < 2:
+								stream_delay = game.update_stream_delay(stream_delay)
 						if away_score != away_scoreLast:
 							time.sleep(stream_delay)
 							print("BAD GUYS SCORED")
